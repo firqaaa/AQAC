@@ -1,10 +1,13 @@
 import re
 import time
 import requests
+import colorama
 import traceback
 import requests_html
 from time import sleep
 from lxml import etree
+from colorama import Fore
+from tqdm.auto import tqdm
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver import ChromeOptions
@@ -73,7 +76,9 @@ answers = []
 questions = []
 
 p = 1
-while p < 10: # 21977 is maks pagination
+pages = 100
+pbar = tqdm(total=pages)
+while p < pages: # 21977 is max pagination so far
     if p == 1:
         url = "https://www.alodokter.com/komunitas/diskusi/penyakit"
     url = "https://www.alodokter.com/komunitas/diskusi/penyakit/page/{}".format(p)
@@ -88,7 +93,6 @@ while p < 10: # 21977 is maks pagination
 
     URL = get_href(url)
     for card_url in URL:
-        print(card_url)
         try:
             ChromeOptions.binary_location = "C:/Program Files/Google/Chrome Beta/Application/chrome.exe"
             driver = webdriver.Chrome("./chromedriver.exe")
@@ -98,6 +102,11 @@ while p < 10: # 21977 is maks pagination
             doctor_answer = get_doctor_answer()
             questions.append(patient_question)
             answers.append(doctor_answer)
+            driver. close()
+            print(card_url + Fore.LIGHTGREEN_EX + " ==SUCCEED==")
         except Exception as e:
+            print(card_url + Fore.LIGHTRED_EX + " ==FAILED==")
             print(e)
     p+=1
+    pbar.update(1)
+pbar.close()
